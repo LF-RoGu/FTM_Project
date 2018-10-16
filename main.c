@@ -49,8 +49,15 @@
 /*
  * @brief   Application entry point.
  */
+/*Supuestamente el mod seria de -0.9835*/
+/*Usando un prescales de 1, obtenemos un valor mas real*/
 int main(void) {
 
+	/**/
+	GPIO_pinControlRegisterType FTM_output_config = GPIO_MUX4;
+	GPIO_clock_gating(GPIO_A);
+	GPIO_clock_gating(GPIO_C);
+	GPIO_pin_control_register(GPIO_C,BIT1,&FTM_output_config);
 	/*FlexTimer config*/
 	FlexTimer_clockGating(FTM_0);
 	FlexTimer_WPDIS_enable(FTM_0);
@@ -58,7 +65,7 @@ int main(void) {
 	/*Selects the FTM behavior in BDM mode.In this case in functional mode*/
 	FlexTimer_CONF_MODE(FTM_0,BDM_3);
 	/**Assign modulo register with a predefined value*/
-	FlexTimer_MOD(FTM_0,0x05);
+	FlexTimer_MOD(FTM_0,0x01);
 	/**Configure FlexTimer in output compare in toggle mode*/
 	FTM0_EdgeAligned_PWM(CH_0);
 	/**Assign channel value register with a predefined value*/
