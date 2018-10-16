@@ -15,6 +15,29 @@ void FTM0_ISR() {
 	GPIOD->PDOR ^= FLEX_TIMER_0_OVERFLOW_LIMIT;
 }
 /*Intento V2*/
+
+void FlexTimer_clockGating(FTM_type FlexTimer) {
+	switch (FlexTimer) {
+	case FTM_0:
+		SIM->SCGC6 |= SIM_SCGC6_FTM0_MASK;
+		break;
+	case FTM_1:
+		SIM->SCGC6 |= SIM_SCGC6_FTM1_MASK;
+		break;
+
+	case FTM_2:
+		SIM->SCGC3 |= SIM_SCGC3_FTM2_MASK;
+		break;
+
+	case FTM_3:
+		SIM->SCGC3 |= SIM_SCGC3_FTM3_MASK;
+		break;
+
+	default:
+		SIM->SCGC6 |= SIM_SCGC6_FTM0_MASK;
+		break;
+	}
+}
 void FlexTimer0_updateCHValue(CH_type channel, sint16 channelValue) {
 	switch (channel)
 	{
@@ -65,28 +88,6 @@ void FlexTimer1_updateCHValue(CH_type channel, sint16 channelValue) {
 		break;
 	}
 }
-void FlexTimer_clockGating(FTM_type FlexTimer) {
-	switch (FlexTimer) {
-	case FTM_0:
-		SIM->SCGC6 |= SIM_SCGC6_FTM0_MASK;
-		break;
-	case FTM_1:
-		SIM->SCGC6 |= SIM_SCGC6_FTM1_MASK;
-		break;
-
-	case FTM_2:
-		SIM->SCGC3 |= SIM_SCGC3_FTM2_MASK;
-		break;
-
-	case FTM_3:
-		SIM->SCGC3 |= SIM_SCGC3_FTM3_MASK;
-		break;
-
-	default:
-		SIM->SCGC6 |= SIM_SCGC6_FTM0_MASK;
-		break;
-	}
-}
 void FlexTimer_WPDIS_enable(FTM_type FlexTimer) {
 
 	switch (FlexTimer) {
@@ -129,6 +130,26 @@ void FlexTimer_FTMEN_enable(FTM_type FlexTimer) {
 
 	default:
 		FTM0->MODE &= ~FLEX_TIMER_FTMEN;
+		break;
+	}
+}
+void FlexTimer_CONF_MODE(FTM_type FlexTimer,CONF_type BDMmode)
+{
+	switch (FlexTimer) {
+	case FTM_0:
+		FTM0->CONF |= FTM_CONF_BDMMODE(BDMmode);
+		break;
+	case FTM_1:
+		FTM1->CONF |= FTM_CONF_BDMMODE(BDMmode);
+		break;
+	case FTM_2:
+		FTM2->CONF |= FTM_CONF_BDMMODE(BDMmode);
+		break;
+	case FTM_3:
+		FTM3->CONF |= FTM_CONF_BDMMODE(BDMmode);
+		break;
+	default:
+		FTM0->CONF |= FTM_CONF_BDMMODE(BDMmode);
 		break;
 	}
 }
