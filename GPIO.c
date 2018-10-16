@@ -20,45 +20,6 @@ void SW3_INT()
 	GPIO_intrStatusFlag.flagPortA  = TRUE;
 	GPIO_clear_interrupt(GPIO_A);
 }
-void SW_Bn_INT()
-{
-	/*Leer todo el puerto, y dependiendo de que se llego a leer, es lo que se retornara
-	 * Dependiendo del bit que se lea en (0 o 1, checar en la mañana)*/
-	uint32 portRead;
-	portRead /*negado?*/= GPIO_read_port(GPIO_B);
-	if(portRead == B1)
-	{
-		GPIO_intrStatusFlag.flagB1 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B2)
-	{
-		GPIO_intrStatusFlag.flagB2 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B3)
-	{
-		GPIO_intrStatusFlag.flagB3 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B4)
-	{
-		GPIO_intrStatusFlag.flagB4 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B5)
-	{
-		GPIO_intrStatusFlag.flagB5 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B6)
-	{
-		GPIO_intrStatusFlag.flagB6 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-}
-
-
 uint8 GPIO_get_IRQ_status(gpio_port_name_t gpio)
 {
 	switch (gpio) {
@@ -66,7 +27,7 @@ uint8 GPIO_get_IRQ_status(gpio_port_name_t gpio)
 			return(GPIO_intrStatusFlag.flagPortA);
 			break;
 		case GPIO_B:
-			return(GPIO_intrStatusFlag.flagPortB | GPIO_intrStatusFlag.flagB1 | GPIO_intrStatusFlag.flagB2 | GPIO_intrStatusFlag.flagB3 | GPIO_intrStatusFlag.flagB4 | GPIO_intrStatusFlag.flagB5 | GPIO_intrStatusFlag.flagB6);
+			return(GPIO_intrStatusFlag.flagPortB);
 			break;
 		case GPIO_C:
 			return(GPIO_intrStatusFlag.flagPortC);
@@ -91,13 +52,6 @@ uint8 GPIO_clear_IRQ_status(gpio_port_name_t gpio)
 			break;
 		case GPIO_B:
 			GPIO_intrStatusFlag.flagPortB = FALSE;
-			/**/
-			GPIO_intrStatusFlag.flagB1 = FALSE;
-			GPIO_intrStatusFlag.flagB2 = FALSE;
-			GPIO_intrStatusFlag.flagB3 = FALSE;
-			GPIO_intrStatusFlag.flagB4 = FALSE;
-			GPIO_intrStatusFlag.flagB5 = FALSE;
-			GPIO_intrStatusFlag.flagB6 = FALSE;
 			break;
 		case GPIO_C:
 			GPIO_intrStatusFlag.flagPortC = FALSE;

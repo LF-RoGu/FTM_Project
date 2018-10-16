@@ -80,18 +80,9 @@ typedef enum{
 	CH_5,
 	CH_6
 }CH_type;
-typedef enum{
-	BDM_0,
-	BDM_1,
-	BDM_2,
-	BDM_3
-}CONF_type;
 
 /**/
 void FlexTimer0_updateCHValue(CH_type channel, sint16 channelValue);
-
-/**/
-void FlexTimer1_updateCHValue(CH_type channel, sint16 channelValue);
 
 /**/
 void FlexTimer_clockGating(FTM_type FlexTimer);
@@ -103,22 +94,10 @@ void FlexTimer_WPDIS_enable(FTM_type FlexTimer);
 void FlexTimer_FTMEN_enable(FTM_type FlexTimer);
 
 /**/
-void FlexTimer_CONF_MODE(FTM_type FlexTimer,CONF_type BDMmode);
-/*
- * Sets the overflow fot the FMT_MOD*/
 void FlexTimer_MOD(FTM_type FlexTimer, uint8 mod);
 
 /**/
-void FTM0_EdgeAligned_PWM(CH_type channel);
-
-/**/
-void FTM1_EdgeAligned_PWM(CH_type channel);
-
-/**/
-void FTM2_EdgeAligned_PWM(CH_type channel);
-
-/**/
-void FTM3_EdgeAligned_PWM(CH_type channel);
+void FlexTimer_EdgeAligned_PWM(FTM_type FlexTimer);
 
 /**/
 void FlexTimer_CLKS_PS_PWM(FTM_type FlexTimer);

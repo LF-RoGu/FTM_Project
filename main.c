@@ -29,7 +29,7 @@
  */
  
 /**
- * @file    FTM_Project.c
+ * @file    TareaFTM_Project.c
  * @brief   Application entry point.
  */
 #include <stdio.h>
@@ -49,28 +49,74 @@
 /*
  * @brief   Application entry point.
  */
-/*Supuestamente el mod seria de -0.9835*/
-/*Usando un prescales de 1, obtenemos un valor mas real*/
+
+/*Output compare frequency = (bus clock)/(Prescaler(mod+1)).
+ * Freq = 1M (1e6)
+ * bus clock = 10.5M
+ * Prescaler = 128
+ * Mod = 0x02*/
+
+uint8 FlagPortB = FALSE;
 int main(void) {
 
-	/**/
-	GPIO_pinControlRegisterType FTM_output_config = GPIO_MUX4;
+	uint8 statePortA = 0;
+	uint8 statePortB = 0;
+	uint8 statePortC = 0;
+	/*PushButton*/
+	GPIO_pinControlRegisterType input_intr_config = GPIO_MUX1|GPIO_PE|GPIO_PS | INTR_FALLING_EDGE;
+
 	GPIO_clock_gating(GPIO_A);
+	GPIO_clock_gating(GPIO_B);
 	GPIO_clock_gating(GPIO_C);
-	GPIO_pin_control_register(GPIO_C,BIT1,&FTM_output_config);
-	/*FlexTimer config*/
+	/*clockGating*/
 	FlexTimer_clockGating(FTM_0);
+	/*output toogle on match*/
 	FlexTimer_WPDIS_enable(FTM_0);
 	FlexTimer_FTMEN_enable(FTM_0);
-	/*Selects the FTM behavior in BDM mode.In this case in functional mode*/
-	FlexTimer_CONF_MODE(FTM_0,BDM_3);
-	/**Assign modulo register with a predefined value*/
-	FlexTimer_MOD(FTM_0,0x01);
-	/**Configure FlexTimer in output compare in toggle mode*/
-	FTM0_EdgeAligned_PWM(CH_0);
-	/**Assign channel value register with a predefined value*/
-	FlexTimer1_updateCHValue(CH_0,0x03);
-	/**Select clock source and prescaler*/
+
+	/**Selects the FTM behavior in BDM mode.In this case in functional mode*/
+	FTM0->CONF |= FTM_CONF_BDMMODE(3);
+	/**Assign module register with a predefined value*/
+	FlexTimer_MOD(FTM_0, 0x02);
+	/*Selects the Edge-Aligned PWM mode mode*/
+	FlexTimer_EdgeAligned_PWM(FTM_0);
+	/*Assign channel value register with a predefined value
+	 * CnV es el contador, que cada vez que se llega a este valor, se reinicia el cont*/
+	FlexTimer0_updateCHValue(CH_0, 0x00);
+	/*Select clock source and prescaler*/
 	FlexTimer_CLKS_PS_PWM(FTM_0);
+
+	while(1)
+	{
+		if (TRUE == GPIO_get_IRQ_status(GPIO_C)) {
+			if (statePortC) {
+				GPIOB->PDOR |= 0x00200000;/**Blue led off*/
+			} else {
+				GPIOB->PDOR &= ~(0x00200000);/**Blue led on*/
+			}
+			statePortC = !statePortC;
+			GPIO_clear_IRQ_status(GPIO_C);
+		}
+		if(TRUE == GPIO_get_IRQ_status(GPIO_B))
+		{
+			if (statePortB) {
+				GPIOB->PDOR |= 0x00400000;/**Read led off*/
+			} else {
+				GPIOB->PDOR &= ~(0x00400000);/**Read led on*/
+			}
+			statePortB = !statePortB;
+			GPIO_clear_IRQ_status(GPIO_B);
+		}
+
+		if (TRUE == GPIO_get_IRQ_status(GPIO_A)) {
+			if (statePortA) {
+				GPIOB->PDOR |= 0x00400000;/**Read led off*/
+			} else {
+				GPIOB->PDOR &= ~(0x00400000);/**Read led on*/
+			}
+			statePortA = !statePortA;
+			GPIO_clear_IRQ_status(GPIO_A);
+		}
+	}
     return 0 ;
 }
