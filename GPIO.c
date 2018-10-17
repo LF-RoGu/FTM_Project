@@ -7,55 +7,84 @@
 
 #include "MK64F12.h"
 #include "GPIO.h"
+#include "Buttons.h"
 
 static GPIO_interruptFlags_t GPIO_intrStatusFlag;
+static GPIO_flag_buttons_t GPIO_flag_buttons;
 
 void SW2_INT()
 {
 	GPIO_intrStatusFlag.flagPortC = TRUE;
 	GPIO_clear_interrupt(GPIO_C);
+	printf("Entro intr SW2\n");
 }
 void SW3_INT()
 {
 	GPIO_intrStatusFlag.flagPortA  = TRUE;
 	GPIO_clear_interrupt(GPIO_A);
+	printf("Entro intr SW3\n");
 }
 void SW_Bn_INT()
 {
 	/*Leer todo el puerto, y dependiendo de que se llego a leer, es lo que se retornara
 	 * Dependiendo del bit que se lea en (0 o 1, checar en la mañana)*/
-	uint32 portRead;
-	portRead /*negado?*/= GPIO_read_port(GPIO_B);
-	if(portRead == B1)
+	/*Modificar a dejar de leer el puerto a solo leer el pin*/
+	uint32 intrB0,intrB1,intrB2,intrB3,intrB4,intrB5,intrB6;
+	intrB0 = GPIO_read_pin(GPIO_B,SW_B0);
+	intrB1 = GPIO_read_pin(GPIO_B,SW_B1);
+	intrB2 = GPIO_read_pin(GPIO_B,SW_B2);
+	intrB3 = GPIO_read_pin(GPIO_B,SW_B3);
+	intrB4 = GPIO_read_pin(GPIO_B,SW_B4);
+	intrB5 = GPIO_read_pin(GPIO_B,SW_B5);
+	intrB6 = GPIO_read_pin(GPIO_B,SW_B6);
+	if (intrB0 == TRUE)
 	{
-		GPIO_intrStatusFlag.flagB1 = TRUE;
+		GPIO_flag_buttons.flagPortB0 = TRUE;
+		GPIO_clear_IRQ_statusB0();
+		printf("Entro intr B0\n");
+	}
+	if (intrB1 == TRUE)
+	{
+		GPIO_flag_buttons.flagPortB1 = TRUE;
+		GPIO_clear_IRQ_statusB1();
+		printf("Entro intr B1\n");
+	}
+	if (intrB2 == TRUE)
+	{
+		GPIO_flag_buttons.flagPortB2 = TRUE;
+		GPIO_clear_IRQ_statusB2();
+		printf("Entro intr B2\n");
+	}
+	if (intrB3 == TRUE)
+	{
+		GPIO_flag_buttons.flagPortB3 = TRUE;
+		GPIO_clear_IRQ_statusB3();
+		printf("Entro intr B3\n");
+	}
+	if (intrB4 == TRUE)
+	{
+		GPIO_flag_buttons.flagPortB4 = TRUE;
+		GPIO_clear_IRQ_statusB4();
+		printf("Entro intr B4\n");
+	}
+	if (intrB5 == TRUE)
+	{
+		GPIO_flag_buttons.flagPortB5 = TRUE;
+		GPIO_clear_IRQ_statusB5();
+		printf("Entro intr B5\n");
+	}
+	if (intrB6 == TRUE)
+	{
+		GPIO_flag_buttons.flagPortB6 = TRUE;
+		GPIO_clear_IRQ_statusB6();
+		printf("Entro intr B6\n");
+	}
+	else
+	{
+		GPIO_intrStatusFlag.flagPortB = TRUE;
 		GPIO_clear_interrupt(GPIO_B);
 	}
-	if (portRead == B2)
-	{
-		GPIO_intrStatusFlag.flagB2 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B3)
-	{
-		GPIO_intrStatusFlag.flagB3 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B4)
-	{
-		GPIO_intrStatusFlag.flagB4 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B5)
-	{
-		GPIO_intrStatusFlag.flagB5 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
-	if (portRead == B6)
-	{
-		GPIO_intrStatusFlag.flagB6 = TRUE;
-		GPIO_clear_interrupt(GPIO_B);
-	}
+
 }
 
 
@@ -66,7 +95,7 @@ uint8 GPIO_get_IRQ_status(gpio_port_name_t gpio)
 			return(GPIO_intrStatusFlag.flagPortA);
 			break;
 		case GPIO_B:
-			return(GPIO_intrStatusFlag.flagPortB | GPIO_intrStatusFlag.flagB1 | GPIO_intrStatusFlag.flagB2 | GPIO_intrStatusFlag.flagB3 | GPIO_intrStatusFlag.flagB4 | GPIO_intrStatusFlag.flagB5 | GPIO_intrStatusFlag.flagB6);
+			return(GPIO_intrStatusFlag.flagPortB);
 			break;
 		case GPIO_C:
 			return(GPIO_intrStatusFlag.flagPortC);
@@ -83,6 +112,62 @@ uint8 GPIO_get_IRQ_status(gpio_port_name_t gpio)
 	}
 
 }
+uint8 GPIO_get_IRQ_statusB0(void)
+{
+	return (GPIO_flag_buttons.flagPortB0);
+}
+void GPIO_clear_IRQ_statusB0()
+{
+	GPIO_flag_buttons.flagPortB0 = FALSE;
+}
+uint8 GPIO_get_IRQ_statusB1(void)
+{
+	return (GPIO_flag_buttons.flagPortB1);
+}
+void GPIO_clear_IRQ_statusB1()
+{
+	GPIO_flag_buttons.flagPortB1 = FALSE;
+}
+uint8 GPIO_get_IRQ_statusB2(void)
+{
+	return (GPIO_flag_buttons.flagPortB2);
+}
+void GPIO_clear_IRQ_statusB2()
+{
+	GPIO_flag_buttons.flagPortB2 = FALSE;
+}
+uint8 GPIO_get_IRQ_statusB3(void)
+{
+	return (GPIO_flag_buttons.flagPortB3);
+}
+void GPIO_clear_IRQ_statusB3()
+{
+	GPIO_flag_buttons.flagPortB3 = FALSE;
+}
+uint8 GPIO_get_IRQ_statusB4(void)
+{
+	return (GPIO_flag_buttons.flagPortB4);
+}
+void GPIO_clear_IRQ_statusB4()
+{
+	GPIO_flag_buttons.flagPortB4 = FALSE;
+}
+uint8 GPIO_get_IRQ_statusB5(void)
+{
+	return (GPIO_flag_buttons.flagPortB5);
+}
+void GPIO_clear_IRQ_statusB5()
+{
+	GPIO_flag_buttons.flagPortB5 = FALSE;
+}
+uint8 GPIO_get_IRQ_statusB6(void)
+{
+	return (GPIO_flag_buttons.flagPortB6);
+}
+void GPIO_clear_IRQ_statusB6()
+{
+	GPIO_flag_buttons.flagPortB6 = FALSE;
+}
 uint8 GPIO_clear_IRQ_status(gpio_port_name_t gpio)
 {
 	switch (gpio) {
@@ -91,13 +176,6 @@ uint8 GPIO_clear_IRQ_status(gpio_port_name_t gpio)
 			break;
 		case GPIO_B:
 			GPIO_intrStatusFlag.flagPortB = FALSE;
-			/**/
-			GPIO_intrStatusFlag.flagB1 = FALSE;
-			GPIO_intrStatusFlag.flagB2 = FALSE;
-			GPIO_intrStatusFlag.flagB3 = FALSE;
-			GPIO_intrStatusFlag.flagB4 = FALSE;
-			GPIO_intrStatusFlag.flagB5 = FALSE;
-			GPIO_intrStatusFlag.flagB6 = FALSE;
 			break;
 		case GPIO_C:
 			GPIO_intrStatusFlag.flagPortC = FALSE;

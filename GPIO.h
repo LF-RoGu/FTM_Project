@@ -11,14 +11,11 @@
 #include "Bits.h"
 
 #define SW3_INT PORTA_IRQHandler
+#define SW_Bn_INT PORTB_IRQHandler
 #define SW2_INT PORTC_IRQHandler
 
-#define SW_Bn_INT PORTB_IRQHandler
-
-
-
-
 #define ERROR 0x02
+#define CLEAR_INT 0xFFFFFFFF
 
 typedef struct
 {
@@ -27,37 +24,7 @@ typedef struct
 	uint8 flagPortC : 1;
 	uint8 flagPortD : 1;
 	uint8 flagPortE : 1;
-	/*Banderas de los botones, estos son del puerto C*/
-	uint8 flagB1	: 1;
-	uint8 flagB2	: 1;
-	uint8 flagB3	: 1;
-	uint8 flagB4	: 1;
-	uint8 flagB5	: 1;
-	uint8 flagB6	: 1;
 } GPIO_interruptFlags_t;
-
-/*Constant that represents the switch_B*/
-/*Corregir a los bits del nuevo puerto*/
-#define SW_B1 BIT5
-#define SW_B2 BIT7
-#define SW_B3 BIT0
-#define SW_B4 BIT9
-#define SW_B5 BIT8
-#define SW_B6 BIT1
-
-/**/
-/*Negar estas madres para que se compare con logica negativa?*/
-/*6to bit 0xBF*/
-#define B1	0x00000020
-#define B2	0x00000080
-#define B3	0x00000001
-#define B4	0x00000200
-#define B5	0x00000100
-#define B6  0x00000002
-#define SW2	0x00000040
-
-/**/
-#define CLEAR_INT 0xFFFFFFFF
 
 /** Constant that represent the clock enable for GPIO A */
 #define GPIO_CLOCK_GATING_PORTA 0x00000200
@@ -147,7 +114,23 @@ void GPIO_clear_interrupt(gpio_port_name_t portName);
 /*
  * */
 uint8 GPIO_clear_IRQ_status(gpio_port_name_t gpio);
+/*Intr for all ports*/
 uint8 GPIO_get_IRQ_status(gpio_port_name_t gpio);
+/*Intr for the external push buttons*/
+uint8 GPIO_get_IRQ_statusB0(void);
+void GPIO_clear_IRQ_statusB0(void);
+uint8 GPIO_get_IRQ_statusB1(void);
+void GPIO_clear_IRQ_statusB1(void);
+uint8 GPIO_get_IRQ_statusB2(void);
+void GPIO_clear_IRQ_statusB2(void);
+uint8 GPIO_get_IRQ_statusB3(void);
+void GPIO_clear_IRQ_statusB3(void);
+uint8 GPIO_get_IRQ_statusB4(void);
+void GPIO_clear_IRQ_statusB4(void);
+uint8 GPIO_get_IRQ_statusB5(void);
+void GPIO_clear_IRQ_statusB5(void);
+uint8 GPIO_get_IRQ_statusB6(void);
+void GPIO_clear_IRQ_statusB6(void);
 
 /********************************************************************************************/
 /********************************************************************************************/

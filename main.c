@@ -29,7 +29,7 @@
  */
  
 /**
- * @file    FTM_Project.c
+ * @file    PushButton_Project.c
  * @brief   Application entry point.
  */
 #include <stdio.h>
@@ -39,9 +39,9 @@
 #include "clock_config.h"
 #include "MK64F12.h"
 #include "fsl_debug_console.h"
-#include "GPIO.h"
-#include "FlexTimer.h"
 #include "NVIC.h"
+#include "GPIO.h"
+#include "Bits.h"
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
@@ -49,28 +49,122 @@
 /*
  * @brief   Application entry point.
  */
-/*Supuestamente el mod seria de -0.9835*/
-/*Usando un prescales de 1, obtenemos un valor mas real*/
-int main(void) {
+int main(void)
+{
+	uint8 statePortA = 0;
+	uint8 statePortB0,statePortB1,statePortB2,statePortB3,statePortB4,statePortB5,statePortB6;
+	uint8 statePortC = 0;
 
-	/**/
-	GPIO_pinControlRegisterType FTM_output_config = GPIO_MUX4;
 	GPIO_clock_gating(GPIO_A);
+	GPIO_clock_gating(GPIO_B);
 	GPIO_clock_gating(GPIO_C);
-	GPIO_pin_control_register(GPIO_C,BIT1,&FTM_output_config);
-	/*FlexTimer config*/
-	FlexTimer_clockGating(FTM_0);
-	FlexTimer_WPDIS_enable(FTM_0);
-	FlexTimer_FTMEN_enable(FTM_0);
-	/*Selects the FTM behavior in BDM mode.In this case in functional mode*/
-	FlexTimer_CONF_MODE(FTM_0,BDM_3);
-	/**Assign modulo register with a predefined value*/
-	FlexTimer_MOD(FTM_0,0x01);
-	/**Configure FlexTimer in output compare in toggle mode*/
-	FTM0_EdgeAligned_PWM(CH_0);
-	/**Assign channel value register with a predefined value*/
-	FlexTimer1_updateCHValue(CH_0,0x03);
-	/**Select clock source and prescaler*/
-	FlexTimer_CLKS_PS_PWM(FTM_0);
+
+	/**Pin control configuration of GPIOB pin21 and pin21 as GPIO by using a special macro contained in Kinetis studio in the MK64F12. h file*/
+	PORTB->PCR[21] = PORT_PCR_MUX(1);
+	PORTB->PCR[22] = PORT_PCR_MUX(1);
+
+	GPIO_pinControlRegisterType input_intr_config = GPIO_MUX1|GPIO_PE|GPIO_PS|INTR_FALLING_EDGE;
+
+	GPIO_pin_control_register(GPIO_A, BIT4, &input_intr_config);
+	/*Configuramos el PCR de los pines que seran push button*/
+	GPIO_pin_control_register(GPIO_B, BIT2, &input_intr_config);
+	GPIO_pin_control_register(GPIO_B, BIT3, &input_intr_config);
+	GPIO_pin_control_register(GPIO_B, BIT10, &input_intr_config);
+	GPIO_pin_control_register(GPIO_B, BIT11, &input_intr_config);
+	GPIO_pin_control_register(GPIO_B, BIT19, &input_intr_config);
+	GPIO_pin_control_register(GPIO_B, BIT18, &input_intr_config);
+	GPIO_pin_control_register(GPIO_B, BIT9, &input_intr_config);
+	GPIO_pin_control_register(GPIO_C, BIT6, &input_intr_config);
+
+	/*Configuramos como entraba los pines del puerto B, que usaremos*/
+	GPIO_data_direction_pin(GPIO_B,GPIO_INPUT,BIT2);
+	GPIO_data_direction_pin(GPIO_B,GPIO_INPUT,BIT3);
+	GPIO_data_direction_pin(GPIO_B,GPIO_INPUT,BIT10);
+	GPIO_data_direction_pin(GPIO_B,GPIO_INPUT,BIT11);
+	GPIO_data_direction_pin(GPIO_B,GPIO_INPUT,BIT19);
+	GPIO_data_direction_pin(GPIO_B,GPIO_INPUT,BIT18);
+	GPIO_data_direction_pin(GPIO_B,GPIO_INPUT,BIT9);
+
+	GPIO_data_direction_pin(GPIO_B,GPIO_OUTPUT,BIT21);
+	GPIO_data_direction_pin(GPIO_B,GPIO_OUTPUT,BIT22);
+
+	/**Sets the threshold for interrupts, if the interrupt has higher priority constant that the BASEPRI, the interrupt will not be attended*/
+	NVIC_setBASEPRI_threshold(PRIORITY_11);
+
+	/**Enables and sets a particular interrupt and its priority*/
+	NVIC_enableInterruptAndPriotity(PORTA_IRQ, PRIORITY_4);
+	/**Enables and sets a particular interrupt and its priority*/
+	NVIC_enableInterruptAndPriotity(PORTB_IRQ, PRIORITY_4);
+	/**Enables and sets a particular interrupt and its priority*/
+	NVIC_enableInterruptAndPriotity(PORTC_IRQ, PRIORITY_4);
+
+	EnableInterrupts;
+
+
+	while (1) {
+		if (TRUE == GPIO_get_IRQ_status(GPIO_A)) {
+			if (statePortA) {
+				GPIOB->PDOR |= 0x00400000;/**Read led off*/
+				GPIOB->PDOR |= 0x00200000;/**Blue led off*/
+			} else {
+				GPIOB->PDOR &= ~(0x00200000);/**Blue led on*/
+			}
+			statePortA = !statePortA;
+			GPIO_clear_IRQ_status(GPIO_A);
+		}
+		if (TRUE == GPIO_get_IRQ_status(GPIO_C)) {
+			if (statePortC) {
+				GPIOB->PDOR |= 0x00400000;/**Read led off*/
+				GPIOB->PDOR |= 0x00200000;/**Blue led off*/
+			} else {
+				GPIOB->PDOR &= ~(0x00200000);/**Blue led on*/
+			}
+			statePortC = !statePortC;
+			GPIO_clear_IRQ_status(GPIO_C);
+		}
+		if (TRUE == GPIO_get_IRQ_statusB0()) {
+			if (statePortB0) {
+				GPIOB->PDOR |= 0x00400000;/**Read led off*/
+				GPIOB->PDOR |= 0x00200000;/**Blue led off*/
+			} else {
+				GPIOB->PDOR &= ~(0x00200000);/**Blue led on*/
+			}
+			statePortB0 = !statePortB0;
+			GPIO_clear_IRQ_status(GPIO_B);
+		}
+		if(TRUE == GPIO_get_IRQ_statusB1()){
+			if(statePortB1){
+				GPIOB->PDOR |= 0x00400000;/**Read led off*/
+				GPIOB->PDOR |= 0x00200000;/**Blue led off*/
+			}
+			else{
+				GPIOB->PDOR &= ~(0x00400000);/**Red led on*/
+			}
+			statePortB1 =!statePortB1;
+			GPIO_clear_IRQ_status(GPIO_B);
+		}
+		if(TRUE == GPIO_get_IRQ_statusB2())
+		{
+			if (statePortB2) {
+				GPIOB->PDOR |= 0x00400000;/**Read led off*/
+				GPIOB->PDOR |= 0x00200000;/**Blue led off*/
+			} else {
+				GPIOB->PDOR &= ~(0x00200000);/**Blue led on*/
+			}
+			statePortB2 = !statePortB2;
+			GPIO_clear_IRQ_status(GPIO_B);
+		}
+		if (TRUE == GPIO_get_IRQ_statusB3()) {
+			if (statePortB3) {
+				GPIOB->PDOR |= 0x00400000;/**Read led off*/
+				GPIOB->PDOR |= 0x00200000;/**Blue led off*/
+			} else {
+				GPIOB->PDOR &= ~(0x00400000);/**Red led on*/
+			}
+			statePortB3 = !statePortB3;
+			GPIO_clear_IRQ_status(GPIO_B);
+		}
+
+	}
     return 0 ;
 }
